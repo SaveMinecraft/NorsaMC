@@ -1,0 +1,21 @@
+name: Patch and Build
+on: [ push, pull_request ]
+jobs:
+  build:
+    if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Git Repository
+        uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+          cache: 'gradle'
+      - name: Configure Git User Details
+        run: git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com" && git config --global user.name "github-actions[bot]"
+      - name: Apply Patches
+        run: ./gradlew applyPatches
+      - name: Build
+        run: ./gradlew build
